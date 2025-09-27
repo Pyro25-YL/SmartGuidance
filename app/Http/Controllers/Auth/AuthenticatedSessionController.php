@@ -34,10 +34,8 @@ public function store(LoginRequest $request): RedirectResponse
     switch ($user->role) {
         case 'admin':
             return redirect()->route('admin.dashboard');
-        case 'guru_mapel':
+        case 'guru':
             return redirect()->route('guru.dashboard');
-        case 'wali_kelas':
-            return redirect()->route('wali.dashboard');
         case 'murid':
             return redirect()->route('murid.dashboard');
         case 'wali_murid':

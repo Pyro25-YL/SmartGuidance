@@ -19,8 +19,11 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
-        'email',
+        'nisn_nip',
         'password',
+        'foto',
+        'role',
+        'jenis_kelamin',
     ];
 
     /**
@@ -45,4 +48,21 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function kelasWali()
+{
+    return $this->hasMany(\App\Models\Kelas::class, 'walikelas_id');
+}
+
+public function kelasSebagaiSiswa()
+{
+    return $this->hasMany(AnggotaKelas::class, 'siswa_id');
+}
+
+public function kelasSebagaiOrtu()
+{
+    return $this->hasMany(AnggotaKelas::class, 'ortu_id');
+}
+
+
 }

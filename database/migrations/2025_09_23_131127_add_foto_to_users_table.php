@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('alamat_sekolah', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+        Schema::table('users', function (Blueprint $table) {
+            $table->string('foto')->nullable()->after('email'); 
+            // nullable supaya tidak wajib isi, after('email') biar kolom muncul setelah email
         });
     }
 
@@ -22,6 +22,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('alamat_sekolah');
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('foto');
+        });
     }
 };
