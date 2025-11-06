@@ -1,8 +1,10 @@
 <?php
 
+use App\Http\Controllers\AbsensiGuruController;
 use App\Http\Controllers\AlamatSekolahController;
 use App\Http\Controllers\AnggotaKelasController;
 use App\Http\Controllers\KelasController;
+use App\Http\Controllers\MapelController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -30,7 +32,7 @@ Route::get('/guru/dashboard', fn () => view('dashboard.guru'))
 Route::get('/wali/dashboard', fn () => view('dashboard.wali'))
     ->name('wali.dashboard');
 
-Route::get('/murid/dashboard', fn () => view('dashboard.murid'))
+Route::get('/murid/dashboard', fn () => view('mobile_app.dashboard_mobile'))
     ->name('murid.dashboard');
 
 Route::get('/walimurid/dashboard', fn () => view('dashboard.walimurid'))
@@ -55,6 +57,26 @@ Route::middleware(['auth'])->group(function () {
 Route::middleware(['auth'])->group(function () {
     Route::get('/alamat-sekolah/create', [AlamatSekolahController::class, 'create'])->name('alamat-sekolah.create');
     Route::post('/alamat-sekolah', [AlamatSekolahController::class, 'store'])->name('alamat-sekolah.store');
+    Route::get('/alamat-sekolah/{id}/edit', [AlamatSekolahController::class, 'edit'])->name('alamat-sekolah.edit');
+    Route::put('/alamat-sekolah/{id}', [AlamatSekolahController::class, 'update'])->name('alamat-sekolah.update');
+    Route::delete('/alamat-sekolah/{id}', [AlamatSekolahController::class, 'destroy'])->name('alamat-sekolah.destroy');
 });
+
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/mapel/create', [MapelController::class, 'create'])->name('mapel.create');
+    Route::post('/mapel',        [MapelController::class, 'store'])->name('mapel.store');
+
+    // (Opsional) halaman list mapel
+    // Route::get('/mapel', [MapelController::class, 'index'])->name('mapel.index');
+});
+
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/absensi-guru/create', [AbsensiGuruController::class, 'create'])->name('absensi-guru.create');
+    Route::post('/absensi-guru',        [AbsensiGuruController::class, 'store'])->name('absensi-guru.store');
+});
+
+
     
 require __DIR__.'/auth.php';
