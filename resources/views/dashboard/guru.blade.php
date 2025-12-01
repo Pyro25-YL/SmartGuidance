@@ -7,6 +7,10 @@
                class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md shadow">
                 + absen
             </a>
+            <a href="{{ route('materi.create') }}"
+               class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md shadow">
+                add materi
+            </a>
     </x-slot>
 
     <div class="py-12">

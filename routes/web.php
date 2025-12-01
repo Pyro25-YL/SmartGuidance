@@ -5,6 +5,7 @@ use App\Http\Controllers\AlamatSekolahController;
 use App\Http\Controllers\AnggotaKelasController;
 use App\Http\Controllers\KelasController;
 use App\Http\Controllers\MapelController;
+use App\Http\Controllers\MateriController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -78,5 +79,9 @@ Route::middleware(['auth'])->group(function () {
 });
 
 
+Route::middleware(['auth'])->group(function () {
+    Route::get('/materi', [MateriController::class, 'create'])->name('materi.create');
+    Route::post('/materi', [MateriController::class, 'store'])->name('materi.store');
+});
     
 require __DIR__.'/auth.php';

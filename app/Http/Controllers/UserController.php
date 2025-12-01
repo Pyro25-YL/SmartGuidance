@@ -2,20 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Controller;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
-    public function create()
-    {
-        return view('users.create');
-    }
-
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         $roles = ['admin', 'guru', 'murid', 'wali_murid'];
 
@@ -31,20 +28,36 @@ class UserController extends Controller
         // Handle upload foto (opsional)
         $filename = null;
         if ($request->hasFile('foto')) {
-            // Simpan ke storage/app/public/foto
             $filename = Str::uuid()->toString().'.'.$request->file('foto')->getClientOriginalExtension();
             $request->file('foto')->storeAs('public/foto', $filename);
         }
 
-        User::create([
+        $user = User::create([
             'name'          => $validated['name'],
-            'nisn_nip'         => $validated['nisn_nip'],
+            'nisn_nip'      => $validated['nisn_nip'],
             'password'      => Hash::make($validated['password']),
             'role'          => $validated['role'],
             'jenis_kelamin' => $validated['jenis_kelamin'] ?? null,
             'foto'          => $filename,
         ]);
 
-        return redirect()->route('users.create')->with('status', 'User berhasil dibuat.');
+        // Opsional: bikin URL foto publik kalau sudah php artisan storage:link
+        $fotoUrl = $filename
+            ? asset('storage/foto/'.$filename)
+            : null;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'User berhasil dibuat.',
+            'data'    => [
+                'id'            => $user->id,
+                'name'          => $user->name,
+                'nisn_nip'      => $user->nisn_nip,
+                'role'          => $user->role,
+                'jenis_kelamin' => $user->jenis_kelamin,
+                'foto'          => $filename,
+                'foto_url'      => $fotoUrl,
+            ],
+        ], 201);
     }
 }

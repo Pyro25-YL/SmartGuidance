@@ -2,72 +2,136 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Controller;
 use App\Models\AlamatSekolah;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class AlamatSekolahController extends Controller
 {
-    public function create()
+    public function showCurrent(): JsonResponse
     {
         $alamat = AlamatSekolah::first();
-        if ($alamat) {
-            return redirect()->route('alamat-sekolah.edit', $alamat->id);
-        }
-        return view('alamat_sekolah.create', ['alamat' => null]);
+
+        Log::info('API GET /alamat-sekolah => data:', [
+            'data' => $alamat
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'data'    => $alamat,
+        ]);
     }
 
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
-        // Jika sudah ada record, alihkan ke edit
+        Log::info('API POST /alamat-sekolah => incoming data:', [
+            'payload' => $request->all()
+        ]);
+
         if (AlamatSekolah::exists()) {
             $alamat = AlamatSekolah::first();
-            return redirect()->route('alamat-sekolah.edit', $alamat->id)
-                ->with('status', 'Alamat sudah ada. Silakan edit.');
+
+            Log::warning('Alamat sudah ada, store diblokir.', [
+                'existing' => $alamat
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Alamat sudah ada. Silakan gunakan endpoint update.',
+                'data'    => $alamat,
+            ], 409);
         }
 
-        $validated = $request->validate([
-            'latitude'           => ['required','numeric','between:-90,90'],
-            'longitude'          => ['required','numeric','between:-180,180'],
-            'radius_jarak_absen' => ['required','integer','min:1','max:100000'],
-            'alamat'          => ['nullable','string','max:255'], 
+        try {
+            $validated = $request->validate([
+                'latitude'           => ['required','numeric','between:-90,90'],
+                'longitude'          => ['required','numeric','between:-180,180'],
+                'radius_jarak_absen' => ['required','integer','min:1','max:100000'],
+                'alamat'             => ['nullable','string','max:255'],
+            ]);
+
+            Log::info('Validasi berhasil:', $validated);
+
+            $validated['singleton'] = 1;
+
+            $alamat = AlamatSekolah::create($validated);
+
+            Log::info('Alamat berhasil disimpan ke database:', [
+                'saved' => $alamat
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Alamat sekolah berhasil dibuat.',
+                'data'    => $alamat,
+            ], 201);
+        } catch (\Exception $e) {
+            Log::error('Gagal menyimpan alamat sekolah:', [
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat menyimpan data.',
+            ], 500);
+        }
+    }
+
+    public function update(Request $request, int $id): JsonResponse
+    {
+        Log::info("API PUT /alamat-sekolah/$id => incoming data:", [
+            'payload' => $request->all()
         ]);
 
-        // set singleton = 1 agar unik
-        $validated['singleton'] = 1;
-
-        $alamat = AlamatSekolah::create($validated);
-
-        return redirect()->route('alamat-sekolah.edit', $alamat->id)
-            ->with('status', 'Alamat sekolah berhasil dibuat.');
-    }
-
-    public function edit($id)
-    {
-        $alamat = AlamatSekolah::findOrFail($id);
-        return view('alamat_sekolah.create', compact('alamat'));
-    }
-
-    public function update(Request $request, $id)
-    {
         $alamat = AlamatSekolah::findOrFail($id);
 
-        $validated = $request->validate([
-            'latitude'           => ['required','numeric','between:-90,90'],
-            'longitude'          => ['required','numeric','between:-180,180'],
-            'radius_jarak_absen' => ['required','integer','min:1','max:100000'],
-        ]);
+        try {
+            $validated = $request->validate([
+                'latitude'           => ['required','numeric','between:-90,90'],
+                'longitude'          => ['required','numeric','between:-180,180'],
+                'radius_jarak_absen' => ['required','integer','min:1','max:100000'],
+                'alamat'             => ['nullable','string','max:255'],
+            ]);
 
-        $alamat->update($validated);
+            Log::info('Validasi update berhasil:', $validated);
 
-        return back()->with('status', 'Alamat sekolah berhasil diperbarui.');
+            $alamat->update($validated);
+
+            Log::info("Alamat ID $id berhasil diperbarui:", [
+                'updated' => $alamat
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Alamat sekolah berhasil diperbarui.',
+                'data'    => $alamat,
+            ]);
+        } catch (\Exception $e) {
+            Log::error("Gagal update alamat sekolah ID $id:", [
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memperbarui alamat sekolah.',
+            ], 500);
+        }
     }
 
-    public function destroy($id)
+    public function destroy(int $id): JsonResponse
     {
+        Log::warning("API DELETE /alamat-sekolah/$id => request delete");
+
         $alamat = AlamatSekolah::findOrFail($id);
         $alamat->delete();
 
-        return redirect()->route('alamat-sekolah.create')
-            ->with('status', 'Alamat sekolah dihapus. Silakan tambahkan yang baru.');
+        Log::warning("Alamat sekolah ID $id berhasil dihapus");
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Alamat sekolah dihapus.',
+        ]);
     }
 }

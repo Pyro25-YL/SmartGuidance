@@ -24,6 +24,7 @@ public function store(Request $request)
         'kelas_id'   => ['required','exists:kelas,id'],
         'guru_id'    => ['required','exists:users,id'],
         'jam_mulai'  => ['required','date_format:H:i'],
+        'hari'       => ['required','string'],
         'jam_akhir'  => ['required','date_format:H:i','after:jam_mulai'],
     ]);
 

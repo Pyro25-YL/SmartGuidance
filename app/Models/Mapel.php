@@ -17,6 +17,7 @@ class Mapel extends Model
         'jam_mulai',
         'guru_id',
         'jam_akhir',
+        'hari'
     ];
 
     public function kelas()

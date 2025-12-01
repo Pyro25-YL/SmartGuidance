@@ -32,60 +32,77 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('mapel.store') }}" method="POST" class="space-y-6">
-                        @csrf
+<form action="{{ route('mapel.store') }}" method="POST" class="space-y-6">
+    @csrf
 
-                        <div>
-                            <label class="block text-sm font-medium mb-1">Nama Mapel</label>
-                            <input type="text" name="nama_mapel" value="{{ old('nama_mapel') }}"
-                                   class="w-full rounded-md border-gray-300 dark:bg-gray-900" required>
-                        </div>
+    <div>
+        <label class="block text-sm font-medium mb-1">Nama Mapel</label>
+        <input type="text" name="nama_mapel" value="{{ old('nama_mapel') }}"
+               class="w-full rounded-md border-gray-300 dark:bg-gray-900" required>
+    </div>
 
-                        <div>
-                            <label class="block text-sm font-medium mb-1">Kelas</label>
-                            <select name="kelas_id" class="w-full rounded-md border-gray-300 dark:bg-gray-900" required>
-                                <option value="">-- Pilih Kelas --</option>
-                                @foreach ($kelasList as $k)
-                                    <option value="{{ $k->id }}" {{ old('kelas_id')==$k->id ? 'selected':'' }}>
-                                        {{ $k->nama_kelas }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
+    <div>
+        <label class="block text-sm font-medium mb-1">Kelas</label>
+        <select name="kelas_id" class="w-full rounded-md border-gray-300 dark:bg-gray-900" required>
+            <option value="">-- Pilih Kelas --</option>
+            @foreach ($kelasList as $k)
+                <option value="{{ $k->id }}" {{ old('kelas_id')==$k->id ? 'selected':'' }}>
+                    {{ $k->nama_kelas }}
+                </option>
+            @endforeach
+        </select>
+    </div>
 
-                        <div class="grid md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium mb-1">Jam Mulai</label>
-                                <input type="time" name="jam_mulai" value="{{ old('jam_mulai') }}"
-                                       class="w-full rounded-md border-gray-300 dark:bg-gray-900" required>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium mb-1">Jam Akhir</label>
-                                <input type="time" name="jam_akhir" value="{{ old('jam_akhir') }}"
-                                       class="w-full rounded-md border-gray-300 dark:bg-gray-900" required>
-                            </div>
-                        </div>
+    {{-- === Tambahan Kolom Hari === --}}
+    <div>
+        <label class="block text-sm font-medium mb-1">Hari</label>
+        <select name="hari" class="w-full rounded-md border-gray-300 dark:bg-gray-900" required>
+            <option value="">-- Pilih Hari --</option>
+            @php
+                $hariList = ['Senin','Selasa','Rabu','Kamis','Jumat'];
+            @endphp
 
-                        <div>
-                            <label class="block text-sm font-medium mb-1">Guru Pengampu</label>
-                            <select name="guru_id" class="w-full rounded-md border-gray-300 dark:bg-gray-900" required>
-                                <option value="">-- Pilih Guru --</option>
-                                @foreach ($guruList as $g)
-                                    <option value="{{ $g->id }}" {{ old('guru_id')==$g->id ? 'selected':'' }}>
-                                        {{ $g->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
+            @foreach ($hariList as $h)
+                <option value="{{ $h }}" {{ old('hari') == $h ? 'selected' : '' }}>
+                    {{ $h }}
+                </option>
+            @endforeach
+        </select>
+    </div>
+    {{-- === END Tambahan Hari === --}}
 
+    <div class="grid md:grid-cols-2 gap-4">
+        <div>
+            <label class="block text-sm font-medium mb-1">Jam Mulai</label>
+            <input type="time" name="jam_mulai" value="{{ old('jam_mulai') }}"
+                   class="w-full rounded-md border-gray-300 dark:bg-gray-900" required>
+        </div>
+        <div>
+            <label class="block text-sm font-medium mb-1">Jam Akhir</label>
+            <input type="time" name="jam_akhir" value="{{ old('jam_akhir') }}"
+                   class="w-full rounded-md border-gray-300 dark:bg-gray-900" required>
+        </div>
+    </div>
 
-                        <div class="pt-4">
-                            <button type="submit"
-                                    class="px-5 py-2.5 rounded-md bg-blue-600 hover:bg-blue-700 text-white font-medium">
-                                Simpan
-                            </button>
-                        </div>
-                    </form>
+    <div>
+        <label class="block text-sm font-medium mb-1">Guru Pengampu</label>
+        <select name="guru_id" class="w-full rounded-md border-gray-300 dark:bg-gray-900" required>
+            <option value="">-- Pilih Guru --</option>
+            @foreach ($guruList as $g)
+                <option value="{{ $g->id }}" {{ old('guru_id')==$g->id ? 'selected':'' }}>
+                    {{ $g->name }}
+                </option>
+            @endforeach
+        </select>
+    </div>
+
+    <div class="pt-4">
+        <button type="submit"
+                class="px-5 py-2.5 rounded-md bg-blue-600 hover:bg-blue-700 text-white font-medium">
+            Simpan
+        </button>
+    </div>
+</form>
 
                 </div>
             </div>
