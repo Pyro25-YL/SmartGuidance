@@ -4,6 +4,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:smartguidance/models/alamat_sekolah.dart';
 import 'package:smartguidance/services/alamat_sekolah_service.dart';
+import 'package:smartguidance/widgets/back_button.dart';
 
 class AlamatSekolahPage extends StatefulWidget {
   const AlamatSekolahPage({super.key});
@@ -254,6 +255,7 @@ class _AlamatSekolahPageState extends State<AlamatSekolahPage> {
                           // HEADER
                           Row(
                             children: const [
+                              BackButtonRounded(),
                               CircleAvatar(
                                 radius: 18,
                                 backgroundColor: purple,

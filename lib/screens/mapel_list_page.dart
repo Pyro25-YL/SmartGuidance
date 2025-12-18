@@ -1,35 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:smartguidance/widgets/back_button.dart';
 
-import '../services/class_service.dart';
-import '../models/class_summary.dart';
+import '../services/mapel_service.dart';
+import '../models/mapel_summary.dart';
 
-class ClassListPage extends StatefulWidget {
-  const ClassListPage({super.key});
+class MapelListPage extends StatefulWidget {
+  const MapelListPage({super.key});
 
   @override
-  State<ClassListPage> createState() => _ClassListPageState();
+  State<MapelListPage> createState() => _MapelListPageState();
 }
 
-class _ClassListPageState extends State<ClassListPage> {
-  final _classService = ClassService();
+class _MapelListPageState extends State<MapelListPage> {
+  final _mapelService = MapelService();
 
-  late Future<List<ClassSummary>> _futureClasses;
+  late Future<List<MapelSummary>> _futureMapel;
 
   @override
   void initState() {
     super.initState();
-    _futureClasses = _classService.fetchClasses();
+    _futureMapel = _mapelService.fetchMapelList();
   }
 
   Future<void> _reload() async {
     setState(() {
-      _futureClasses = _classService.fetchClasses();
+      _futureMapel = _mapelService.fetchMapelList();
     });
   }
 
-  void _goToAddClass() {
-    Navigator.pushNamed(context, '/add-class');
+  void _goToAddMapel() {
+    Navigator.pushNamed(context, '/add-mapel').then((_) {
+      _reload();
+    });
   }
 
   @override
@@ -54,7 +56,7 @@ class _ClassListPageState extends State<ClassListPage> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.95),
+                  color: Colors.white.withOpacity(0.9),
                   borderRadius: BorderRadius.circular(28),
                   boxShadow: [
                     BoxShadow(
@@ -66,19 +68,21 @@ class _ClassListPageState extends State<ClassListPage> {
                 ),
                 child: Column(
                   children: [
-                    // HEADER + tombol Add
+                    // ===== HEADER + BACK + ADD MAPEL =====
                     Row(
                       children: [
-                        BackButtonRounded(),
+                        const BackButtonRounded(),
+                        const SizedBox(width: 8),
                         const CircleAvatar(
                           radius: 18,
                           backgroundColor: purple,
-                          child: Icon(Icons.class_, color: Colors.white),
+                          child: Icon(Icons.menu_book,
+                              color: Colors.white, size: 20),
                         ),
                         const SizedBox(width: 12),
                         const Expanded(
                           child: Text(
-                            'Daftar Kelas',
+                            'Daftar Mapel',
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -87,7 +91,7 @@ class _ClassListPageState extends State<ClassListPage> {
                           ),
                         ),
                         ElevatedButton.icon(
-                          onPressed: _goToAddClass,
+                          onPressed: _goToAddMapel,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: purple,
                             padding: const EdgeInsets.symmetric(
@@ -100,7 +104,7 @@ class _ClassListPageState extends State<ClassListPage> {
                           ),
                           icon: const Icon(Icons.add, size: 16),
                           label: const Text(
-                            'Add Kelas',
+                            'Add Mapel',
                             style: TextStyle(fontSize: 12),
                           ),
                         ),
@@ -109,15 +113,14 @@ class _ClassListPageState extends State<ClassListPage> {
 
                     const SizedBox(height: 16),
                     const Divider(height: 1),
-
                     const SizedBox(height: 12),
 
-                    // LIST KELAS
+                    // ===== LIST MAPEL =====
                     Expanded(
                       child: RefreshIndicator(
                         onRefresh: _reload,
-                        child: FutureBuilder<List<ClassSummary>>(
-                          future: _futureClasses,
+                        child: FutureBuilder<List<MapelSummary>>(
+                          future: _futureMapel,
                           builder: (context, snapshot) {
                             if (snapshot.connectionState ==
                                 ConnectionState.waiting) {
@@ -132,7 +135,7 @@ class _ClassListPageState extends State<ClassListPage> {
                                   Padding(
                                     padding: const EdgeInsets.all(16.0),
                                     child: Text(
-                                      'Gagal memuat data kelas: ${snapshot.error}',
+                                      'Gagal memuat data mapel: ${snapshot.error}',
                                       style: const TextStyle(color: Colors.red),
                                     ),
                                   ),
@@ -140,15 +143,15 @@ class _ClassListPageState extends State<ClassListPage> {
                               );
                             }
 
-                            final classes = snapshot.data ?? [];
+                            final list = snapshot.data ?? [];
 
-                            if (classes.isEmpty) {
+                            if (list.isEmpty) {
                               return ListView(
                                 children: const [
                                   Padding(
                                     padding: EdgeInsets.all(16.0),
                                     child: Text(
-                                      'Belum ada data kelas.',
+                                      'Belum ada mapel terdaftar.',
                                       style: TextStyle(fontSize: 14),
                                     ),
                                   ),
@@ -157,12 +160,12 @@ class _ClassListPageState extends State<ClassListPage> {
                             }
 
                             return ListView.separated(
-                              itemCount: classes.length,
+                              itemCount: list.length,
                               separatorBuilder: (_, __) =>
                                   const SizedBox(height: 8),
                               itemBuilder: (context, index) {
-                                final c = classes[index];
-                                return _ClassCard(item: c);
+                                final m = list[index];
+                                return _MapelCard(item: m);
                               },
                             );
                           },
@@ -180,10 +183,10 @@ class _ClassListPageState extends State<ClassListPage> {
   }
 }
 
-class _ClassCard extends StatelessWidget {
-  final ClassSummary item;
+class _MapelCard extends StatelessWidget {
+  final MapelSummary item;
 
-  const _ClassCard({required this.item});
+  const _MapelCard({required this.item});
 
   @override
   Widget build(BuildContext context) {
@@ -204,16 +207,16 @@ class _ClassCard extends StatelessWidget {
               color: purple,
               shape: BoxShape.circle,
             ),
-            child:
-                const Icon(Icons.meeting_room, color: Colors.white, size: 20),
+            child: const Icon(Icons.menu_book, color: Colors.white, size: 20),
           ),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Nama Mapel
                 Text(
-                  item.namaKelas,
+                  item.namaMapel,
                   style: const TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: 14,
@@ -221,14 +224,20 @@ class _ClassCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 4),
+
+                // Kelas + Hari
                 Text(
-                  'Walikelas: ${item.waliNama ?? '-'}'
-                  '${item.waliNisnNip != null ? " (${item.waliNisnNip})" : ""}',
+                  '${item.kelasNama} • ${item.hari}',
                   style: const TextStyle(fontSize: 12),
                 ),
+
+                // Jam + Guru
                 Text(
-                  'Jumlah siswa: ${item.jumlahSiswa}',
-                  style: const TextStyle(fontSize: 12, color: Colors.black87),
+                  '${item.jamMulai} - ${item.jamAkhir} • ${item.guruNama}',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.black87,
+                  ),
                 ),
               ],
             ),

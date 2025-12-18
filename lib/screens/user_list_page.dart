@@ -1,35 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:smartguidance/widgets/back_button.dart';
 
-import '../services/class_service.dart';
-import '../models/class_summary.dart';
+import '../services/user_service.dart';
+import '../models/app_user.dart';
 
-class ClassListPage extends StatefulWidget {
-  const ClassListPage({super.key});
+class UserListPage extends StatefulWidget {
+  const UserListPage({super.key});
 
   @override
-  State<ClassListPage> createState() => _ClassListPageState();
+  State<UserListPage> createState() => _UserListPageState();
 }
 
-class _ClassListPageState extends State<ClassListPage> {
-  final _classService = ClassService();
+class _UserListPageState extends State<UserListPage> {
+  final _userService = UserService();
 
-  late Future<List<ClassSummary>> _futureClasses;
+  late Future<List<AppUser>> _futureUsers;
 
   @override
   void initState() {
     super.initState();
-    _futureClasses = _classService.fetchClasses();
+    _futureUsers = _userService.fetchUsers();
   }
 
   Future<void> _reload() async {
     setState(() {
-      _futureClasses = _classService.fetchClasses();
+      _futureUsers = _userService.fetchUsers();
     });
   }
 
-  void _goToAddClass() {
-    Navigator.pushNamed(context, '/add-class');
+  void _goToAddUser() {
+    Navigator.pushNamed(context, '/add-user').then((_) {
+      _reload();
+    });
   }
 
   @override
@@ -54,7 +56,7 @@ class _ClassListPageState extends State<ClassListPage> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.95),
+                  color: Colors.white.withOpacity(0.9),
                   borderRadius: BorderRadius.circular(28),
                   boxShadow: [
                     BoxShadow(
@@ -66,19 +68,21 @@ class _ClassListPageState extends State<ClassListPage> {
                 ),
                 child: Column(
                   children: [
-                    // HEADER + tombol Add
+                    // ===== HEADER =====
                     Row(
                       children: [
-                        BackButtonRounded(),
+                        const BackButtonRounded(),
+                        const SizedBox(width: 8),
                         const CircleAvatar(
                           radius: 18,
                           backgroundColor: purple,
-                          child: Icon(Icons.class_, color: Colors.white),
+                          child:
+                              Icon(Icons.people, color: Colors.white, size: 20),
                         ),
                         const SizedBox(width: 12),
                         const Expanded(
                           child: Text(
-                            'Daftar Kelas',
+                            'Daftar Akun',
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -87,7 +91,7 @@ class _ClassListPageState extends State<ClassListPage> {
                           ),
                         ),
                         ElevatedButton.icon(
-                          onPressed: _goToAddClass,
+                          onPressed: _goToAddUser,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: purple,
                             padding: const EdgeInsets.symmetric(
@@ -100,7 +104,7 @@ class _ClassListPageState extends State<ClassListPage> {
                           ),
                           icon: const Icon(Icons.add, size: 16),
                           label: const Text(
-                            'Add Kelas',
+                            'Add User',
                             style: TextStyle(fontSize: 12),
                           ),
                         ),
@@ -109,15 +113,14 @@ class _ClassListPageState extends State<ClassListPage> {
 
                     const SizedBox(height: 16),
                     const Divider(height: 1),
-
                     const SizedBox(height: 12),
 
-                    // LIST KELAS
+                    // ===== LIST USER =====
                     Expanded(
                       child: RefreshIndicator(
                         onRefresh: _reload,
-                        child: FutureBuilder<List<ClassSummary>>(
-                          future: _futureClasses,
+                        child: FutureBuilder<List<AppUser>>(
+                          future: _futureUsers,
                           builder: (context, snapshot) {
                             if (snapshot.connectionState ==
                                 ConnectionState.waiting) {
@@ -132,7 +135,7 @@ class _ClassListPageState extends State<ClassListPage> {
                                   Padding(
                                     padding: const EdgeInsets.all(16.0),
                                     child: Text(
-                                      'Gagal memuat data kelas: ${snapshot.error}',
+                                      'Gagal memuat data user: ${snapshot.error}',
                                       style: const TextStyle(color: Colors.red),
                                     ),
                                   ),
@@ -140,15 +143,15 @@ class _ClassListPageState extends State<ClassListPage> {
                               );
                             }
 
-                            final classes = snapshot.data ?? [];
+                            final users = snapshot.data ?? [];
 
-                            if (classes.isEmpty) {
+                            if (users.isEmpty) {
                               return ListView(
                                 children: const [
                                   Padding(
                                     padding: EdgeInsets.all(16.0),
                                     child: Text(
-                                      'Belum ada data kelas.',
+                                      'Belum ada user terdaftar.',
                                       style: TextStyle(fontSize: 14),
                                     ),
                                   ),
@@ -157,12 +160,12 @@ class _ClassListPageState extends State<ClassListPage> {
                             }
 
                             return ListView.separated(
-                              itemCount: classes.length,
+                              itemCount: users.length,
                               separatorBuilder: (_, __) =>
                                   const SizedBox(height: 8),
                               itemBuilder: (context, index) {
-                                final c = classes[index];
-                                return _ClassCard(item: c);
+                                final u = users[index];
+                                return _UserCard(user: u);
                               },
                             );
                           },
@@ -180,10 +183,10 @@ class _ClassListPageState extends State<ClassListPage> {
   }
 }
 
-class _ClassCard extends StatelessWidget {
-  final ClassSummary item;
+class _UserCard extends StatelessWidget {
+  final AppUser user;
 
-  const _ClassCard({required this.item});
+  const _UserCard({required this.user});
 
   @override
   Widget build(BuildContext context) {
@@ -197,6 +200,7 @@ class _ClassCard extends StatelessWidget {
       ),
       child: Row(
         children: [
+          // Icon
           Container(
             width: 36,
             height: 36,
@@ -204,16 +208,18 @@ class _ClassCard extends StatelessWidget {
               color: purple,
               shape: BoxShape.circle,
             ),
-            child:
-                const Icon(Icons.meeting_room, color: Colors.white, size: 20),
+            child: const Icon(Icons.person, color: Colors.white, size: 20),
           ),
+
           const SizedBox(width: 10),
+
+          // DATA USER
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  item.namaKelas,
+                  user.name,
                   style: const TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: 14,
@@ -222,13 +228,44 @@ class _ClassCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Walikelas: ${item.waliNama ?? '-'}'
-                  '${item.waliNisnNip != null ? " (${item.waliNisnNip})" : ""}',
+                  '${user.role ?? '-'} • ${user.jenisKelamin ?? '-'}',
                   style: const TextStyle(fontSize: 12),
                 ),
                 Text(
-                  'Jumlah siswa: ${item.jumlahSiswa}',
-                  style: const TextStyle(fontSize: 12, color: Colors.black87),
+                  'NISN/NIP: ${user.nisnNip}',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.black87,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // ======== TOMBOL DETAIL ========
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pushNamed(
+                context,
+                '/user-detail', // <-- ROUTE DETAIL
+                arguments: user, // <-- Kirim data user
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: purple,
+              minimumSize: const Size(60, 32),
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+            ),
+            child: const Row(
+              children: [
+                Icon(Icons.visibility, size: 16, color: Colors.white),
+                SizedBox(width: 4),
+                Text(
+                  "Detail",
+                  style: TextStyle(fontSize: 11, color: Colors.white),
                 ),
               ],
             ),

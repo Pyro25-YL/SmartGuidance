@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:smartguidance/screens/add_user_page.dart';
+import 'package:smartguidance/screens/mapel_list_page.dart';
+import 'package:smartguidance/screens/user_list_page.dart';
 import '../widgets/simple_header.dart';
 import '../widgets/feature_menu_grid.dart';
 import 'placeholder_page.dart';
@@ -45,7 +47,7 @@ class AdminHomePage extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => const AddUserPage(),
+                          builder: (_) => const UserListPage(),
                         ),
                       );
                     },
@@ -60,7 +62,23 @@ class AdminHomePage extends StatelessWidget {
                     label: 'Add\nMapel',
                     icon: Icons.menu_book,
                     iconColor: Colors.purple,
-                    onTap: openPlaceholder(context, 'Tambah Mapel'),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const MapelListPage(),
+                        ),
+                      );
+                    },
+                  ),
+                  // === MENU BARU: ADD ANGGOTA KELAS ===
+                  FeatureItem(
+                    label: 'Add Anggota\nKelas',
+                    icon: Icons.group_add,
+                    iconColor: Colors.green,
+                    onTap: () {
+                      Navigator.pushNamed(context, '/anggota-kelas/add');
+                    },
                   ),
                 ],
               ),

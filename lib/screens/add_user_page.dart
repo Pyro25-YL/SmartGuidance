@@ -5,6 +5,7 @@ import 'dart:typed_data'; // untuk Uint8List
 import 'package:flutter/foundation.dart'; // untuk kIsWeb
 import 'package:file_picker/file_picker.dart'; // untuk pilih file di web
 import 'package:file_picker/file_picker.dart';
+import 'package:smartguidance/widgets/back_button.dart';
 import 'dart:io';
 import '../services/user_service.dart';
 import '../models/app_user.dart';
@@ -151,6 +152,7 @@ class _AddUserPageState extends State<AddUserPage> {
                       // HEADER
                       Row(
                         children: const [
+                          BackButtonRounded(),
                           CircleAvatar(
                             radius: 18,
                             backgroundColor: purple,

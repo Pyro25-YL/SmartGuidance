@@ -14,14 +14,21 @@ class ClassSummary {
   });
 
   factory ClassSummary.fromJson(Map<String, dynamic> json) {
-    final wali = json['wali_kelas'] as Map<String, dynamic>?;
+    final wali = json['wali_kelas'];
 
     return ClassSummary(
-      id: int.parse(json['id'].toString()),
-      namaKelas: json['nama_kelas'] as String,
-      jumlahSiswa: int.parse((json['jumlah_siswa'] ?? 0).toString()),
-      waliNama: wali != null ? wali['name'] as String? : null,
-      waliNisnNip: wali != null ? wali['nisn_nip']?.toString() : null,
+      id: _parseInt(json['id']),
+      namaKelas: (json['nama_kelas'] ?? 'Tanpa Nama').toString(),
+      jumlahSiswa: _parseInt(json['jumlah_siswa'], defaultValue: 0),
+      waliNama: wali is Map<String, dynamic> ? wali['name']?.toString() : null,
+      waliNisnNip:
+          wali is Map<String, dynamic> ? wali['nisn_nip']?.toString() : null,
     );
+  }
+
+  static int _parseInt(dynamic value, {int defaultValue = 0}) {
+    if (value == null) return defaultValue;
+    if (value is int) return value;
+    return int.tryParse(value.toString()) ?? defaultValue;
   }
 }

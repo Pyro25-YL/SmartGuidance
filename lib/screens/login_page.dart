@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/auth_models.dart';
 import '../services/auth_service.dart';
+import '../services/session_manager.dart'; // hanya ini yang dipakai
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -61,9 +62,17 @@ class _LoginPageState extends State<LoginPage> {
         return;
       }
 
-      // Arahkan sesuai role dari backend
-      final role = result.role; // atau result.user.role
+      // ==== AMBIL ROLE & USER DARI RESULT ====
+      final role = result.role; // misal 'guru', 'admin', dst
+      final user = result.user; // pastikan LoginResult punya field ini
 
+      // ==== SIMPAN SESSION (role + data user) ====
+      await SessionManager.saveSession(
+        role,
+        userJson: user?.toJson(), // kalau null juga aman
+      );
+
+      // ==== Arahkan sesuai role ====
       if (role == 'murid') {
         Navigator.pushReplacementNamed(context, '/student');
       } else if (role == 'admin') {

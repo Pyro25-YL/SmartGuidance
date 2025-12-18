@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:smartguidance/screens/absensi_masuk_page.dart';
+import 'package:smartguidance/screens/chatbot_bk_page.dart';
+import 'package:smartguidance/screens/jadwal_page.dart';
+import 'package:smartguidance/screens/mapel_page.dart';
+import 'package:smartguidance/screens/pelanggaran_page.dart';
+import 'package:smartguidance/screens/pilih_mapel_materi_page.dart';
+import 'package:smartguidance/screens/rekomendasi_jurusan_page.dart';
+import 'package:smartguidance/screens/upload_tugas_page.dart';
+import 'package:smartguidance/screens/nilai_tugas_page.dart';
 import '../widgets/simple_header.dart';
 import '../widgets/feature_menu_grid.dart';
-import 'placeholder_page.dart';
-import 'nav_helper.dart';
 
 class StudentHomePage extends StatelessWidget {
   const StudentHomePage({super.key});
@@ -22,35 +29,139 @@ class StudentHomePage extends StatelessWidget {
               ),
               FeatureMenuGrid(
                 items: [
+                  // ===== DAFTAR KELAS =====
                   FeatureItem(
-                    label: 'Daftar\nKelas',
-                    icon: Icons.list_alt,
+                    label: 'Daftar\nMapel',
+                    icon: Icons.class_,
                     iconColor: Colors.pink,
-                    onTap: openPlaceholder(context, 'Daftar Kelas'),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const PilihMapelMateriPage(),
+                        ),
+                      );
+                    },
                   ),
+
+                  // ===== ABSEN MAPEL =====
                   FeatureItem(
-                    label: 'Mata\nPelajaran',
-                    icon: Icons.menu_book,
+                    label: 'Absen\nMapel',
+                    icon: Icons.fact_check,
                     iconColor: Colors.deepPurple,
-                    onTap: openPlaceholder(context, 'Mata Pelajaran'),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const MapelPage(),
+                        ),
+                      );
+                    },
                   ),
+
+                  // ===== ABSEN MASUK =====
                   FeatureItem(
-                    label: 'Daftar\nAbsen',
-                    icon: Icons.checklist_rtl,
+                    label: 'Absen\nMasuk',
+                    icon: Icons.login,
                     iconColor: Colors.orange,
-                    onTap: openPlaceholder(context, 'Daftar Absen'),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const AbsensiMasukPage(),
+                        ),
+                      );
+                    },
                   ),
+
+                  // ===== UPLOAD TUGAS (BARU) =====
+                  FeatureItem(
+                    label: 'Upload\nTugas',
+                    icon: Icons.upload_file,
+                    iconColor: Colors.green,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const UploadTugasPage(),
+                        ),
+                      );
+                    },
+                  ),
+
+                  // ===== NILAI TUGAS (BARU) =====
+                  FeatureItem(
+                    label: 'Nilai\nTugas',
+                    icon: Icons.grade,
+                    iconColor: Colors.teal,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const NilaiTugasPage(),
+                        ),
+                      );
+                    },
+                  ),
+
+                  // ===== PELANGGARAN =====
                   FeatureItem(
                     label: 'Pelanggaran',
-                    icon: Icons.report_problem,
+                    icon: Icons.warning_amber_rounded,
                     iconColor: Colors.red,
-                    onTap: openPlaceholder(context, 'Pelanggaran'),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const PelanggaranPage(),
+                        ),
+                      );
+                    },
                   ),
+
+                  // ===== JADWAL =====
                   FeatureItem(
                     label: 'Jadwal',
-                    icon: Icons.schedule,
+                    icon: Icons.calendar_month,
                     iconColor: Colors.blue,
-                    onTap: openPlaceholder(context, 'Jadwal'),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const JadwalPage(),
+                        ),
+                      );
+                    },
+                  ),
+
+                  // ===== CHATBOT BK =====
+                  FeatureItem(
+                    label: 'Chatbot\nBK',
+                    icon: Icons.support_agent,
+                    iconColor: Colors.deepOrange,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const ChatbotBKPage(),
+                        ),
+                      );
+                    },
+                  ),
+
+                  // ===== REKOMENDASI JURUSAN =====
+                  FeatureItem(
+                    label: 'Rekomendasi\nJurusan',
+                    icon: Icons.school,
+                    iconColor: Colors.indigo,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const RekomendasiJurusanPage(),
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),

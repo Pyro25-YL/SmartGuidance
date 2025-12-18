@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import '../services/class_service.dart';
+import '../models/guru_option.dart';
+import '../widgets/back_button.dart';
 
 class AddClassPage extends StatefulWidget {
   const AddClassPage({super.key});
@@ -14,14 +17,38 @@ class _AddClassPageState extends State<AddClassPage> {
   final _formKey = GlobalKey<FormState>();
   bool _isSaving = false;
 
-  // TODO: nanti ambil dari API guru (role = guru)
-  // untuk sementara dummy dulu
-  final List<_GuruOption> _guruList = const [
-    _GuruOption(id: 1, name: 'Guru A'),
-    _GuruOption(id: 2, name: 'Guru B'),
-    _GuruOption(id: 3, name: 'Guru C'),
-  ];
-  _GuruOption? _selectedGuru;
+  final _classService = ClassService();
+
+  List<GuruOption> _guruList = [];
+  GuruOption? _selectedGuru;
+  bool _isLoadingGuru = true;
+  String? _guruError;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadGuruList();
+  }
+
+  Future<void> _loadGuruList() async {
+    try {
+      final list = await _classService.fetchGuruList();
+      if (!mounted) return;
+      setState(() {
+        _guruList = list;
+        _isLoadingGuru = false;
+        if (_guruList.isNotEmpty) {
+          _selectedGuru = _guruList.first;
+        }
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isLoadingGuru = false;
+        _guruError = e.toString();
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -31,9 +58,16 @@ class _AddClassPageState extends State<AddClassPage> {
   }
 
   Future<void> _saveClass() async {
-    if (!_formKey.currentState!.validate()) return;
+    final formState = _formKey.currentState;
+    if (formState == null) {
+      debugPrint('FormState masih null (Form belum ter-mount?)');
+      return;
+    }
 
-    if (_selectedGuru == null) {
+    if (!formState.validate()) return;
+
+    final guru = _selectedGuru;
+    if (guru == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Wali kelas (guru) wajib dipilih')),
       );
@@ -43,23 +77,31 @@ class _AddClassPageState extends State<AddClassPage> {
     setState(() => _isSaving = true);
 
     try {
-      // TODO: sambungkan ke backend Laravel (POST /api/kelas atau sejenis)
-      final body = {
-        'nama_kelas': _namaKelasC.text.trim(),
-        'jumlah_siswa': _jumlahSiswaC.text.trim(),
-        'walikelas_id': _selectedGuru!.id.toString(),
-      };
-      debugPrint('Kirim ke backend (prototype): $body');
+      final nama = _namaKelasC.text.trim();
+      final jumlah = int.tryParse(_jumlahSiswaC.text.trim()) ?? 0;
 
-      await Future.delayed(const Duration(seconds: 1));
+      await _classService.createClass(
+        namaKelas: nama,
+        jumlahSiswa: jumlah,
+        walikelasId: guru.id, // -> akan masuk ke kolom walikelas_id
+      );
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Kelas berhasil disimpan (prototype).')),
-        );
-      }
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Kelas berhasil disimpan.')),
+      );
+
+      Navigator.pop(context); // kembali ke daftar kelas
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal menyimpan kelas: $e')),
+      );
     } finally {
-      if (mounted) setState(() => _isSaving = false);
+      if (mounted) {
+        setState(() => _isSaving = false);
+      }
     }
   }
 
@@ -103,11 +145,15 @@ class _AddClassPageState extends State<AddClassPage> {
                       // HEADER
                       Row(
                         children: const [
+                          BackButtonRounded(),
                           CircleAvatar(
                             radius: 18,
                             backgroundColor: purple,
-                            child: Icon(Icons.meeting_room,
-                                color: Colors.white, size: 20),
+                            child: Icon(
+                              Icons.meeting_room,
+                              color: Colors.white,
+                              size: 20,
+                            ),
                           ),
                           SizedBox(width: 12),
                           Expanded(
@@ -159,41 +205,61 @@ class _AddClassPageState extends State<AddClassPage> {
 
                       // WALI KELAS
                       _label("Wali Kelas (Guru)"),
-                      Container(
-                        height: 46,
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        decoration: BoxDecoration(
-                          color: purple,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<_GuruOption>(
-                            value: _selectedGuru,
-                            dropdownColor: purple,
-                            icon: const Icon(Icons.arrow_drop_down,
-                                color: Colors.white),
-                            hint: const Text(
-                              '-- Pilih Guru --',
-                              style: TextStyle(color: Colors.white70),
+                      if (_isLoadingGuru)
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 8.0),
+                          child: LinearProgressIndicator(),
+                        )
+                      else if (_guruError != null)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: Text(
+                            'Gagal memuat guru: $_guruError',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Colors.red,
                             ),
-                            items: _guruList
-                                .map(
-                                  (g) => DropdownMenuItem<_GuruOption>(
-                                    value: g,
-                                    child: Text(
-                                      g.name,
-                                      style:
-                                          const TextStyle(color: Colors.white),
+                          ),
+                        )
+                      else
+                        Container(
+                          height: 46,
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          decoration: BoxDecoration(
+                            color: purple,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<GuruOption>(
+                              value: _selectedGuru,
+                              dropdownColor: purple,
+                              icon: const Icon(
+                                Icons.arrow_drop_down,
+                                color: Colors.white,
+                              ),
+                              hint: const Text(
+                                '-- Pilih Guru --',
+                                style: TextStyle(color: Colors.white70),
+                              ),
+                              items: _guruList
+                                  .map(
+                                    (g) => DropdownMenuItem<GuruOption>(
+                                      value: g,
+                                      child: Text(
+                                        g.name,
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                )
-                                .toList(),
-                            onChanged: (val) {
-                              setState(() => _selectedGuru = val);
-                            },
+                                  )
+                                  .toList(),
+                              onChanged: (val) {
+                                setState(() => _selectedGuru = val);
+                              },
+                            ),
                           ),
                         ),
-                      ),
                       const SizedBox(height: 4),
                       const Text(
                         'Hanya menampilkan user dengan role guru.',
@@ -285,11 +351,4 @@ class _AddClassPageState extends State<AddClassPage> {
       ),
     );
   }
-}
-
-class _GuruOption {
-  final int id;
-  final String name;
-
-  const _GuruOption({required this.id, required this.name});
 }
