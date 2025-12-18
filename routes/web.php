@@ -8,6 +8,7 @@ use App\Http\Controllers\MapelController;
 use App\Http\Controllers\MateriController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\UserControllerweb;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -40,8 +41,8 @@ Route::get('/walimurid/dashboard', fn () => view('dashboard.walimurid'))
     ->name('walimurid.dashboard');
 
     Route::middleware(['auth'])->group(function () {
-    Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
-    Route::post('/users', [UserController::class, 'store'])->name('users.store');
+    Route::get('/users/create', [UserControllerweb::class, 'create'])->name('users.create');
+    Route::post('/users', [UserControllerweb::class, 'store'])->name('users.store');
 });
 
 Route::middleware(['auth'])->group(function () {

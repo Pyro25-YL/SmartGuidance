@@ -49,6 +49,18 @@ class User extends Authenticatable
         ];
     }
 
+    protected $appends = ['foto_url'];
+
+    public function getFotoUrlAttribute()
+    {
+        if (!$this->foto) {
+            return null;
+        }
+
+        // custom route
+        return url('/foto-user/'.$this->foto);
+    }
+
     public function kelasWali()
 {
     return $this->hasMany(\App\Models\Kelas::class, 'walikelas_id');
